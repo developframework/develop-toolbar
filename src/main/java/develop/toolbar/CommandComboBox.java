@@ -1,6 +1,6 @@
 package develop.toolbar;
 
-import develop.toolkit.base.utils.StringAdvice;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -9,18 +9,24 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Objects;
+import java.util.stream.Stream;
 
+@Component
 public class CommandComboBox extends JTextField {
 
     private JComboBox<String> hintBox;
 
-    private CommandRegistry commandRegistry = new CommandRegistry();
+    private CommandRegistry commandRegistry;
 
-    private SearchHistoryManager searchHistoryManager = new SearchHistoryManager();
+    private SearchHistoryManager searchHistoryManager;
 
-    public CommandComboBox(JFrame frame) {
-        this.setFont(new Font("Courier New", Font.BOLD, 20));
-        hintBox = new JComboBox<>() {
+    public CommandComboBox(CommandRegistry commandRegistry, SearchHistoryManager searchHistoryManager) {
+        this.commandRegistry = commandRegistry;
+        this.searchHistoryManager = searchHistoryManager;
+        this.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        this.setForeground(new Color(0x55524C));
+//        this.setBorder(BorderFactory.createEtchedBorder());
+        hintBox = new JComboBox<String>() {
             public Dimension getPreferredSize() {
                 return new Dimension(super.getPreferredSize().width, 0);
             }
@@ -32,16 +38,30 @@ public class CommandComboBox extends JTextField {
 
         //文本框按键事件
         this.addKeyListener(new KeyAdapter() {
+
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    String commandStr = CommandComboBox.this.getText();
-                    commandRegistry.executeCommand(commandStr);
-                    searchHistoryManager.appendHistory(commandStr);
-                    CommandComboBox.this.setText("");
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    hintBox.requestFocus();
-                    hintBox.showPopup();
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_ENTER: {
+                        String commandStr = CommandComboBox.this.getText();
+                        if (commandRegistry.executeCommand(commandStr)) {
+                            searchHistoryManager.appendHistory(commandStr);
+                            CommandComboBox.this.setText("");
+                        }
+                    }
+                    break;
+                    case KeyEvent.VK_DOWN: {
+                        if (hintBox.getItemCount() > 0) {
+                            hintBox.requestFocus();
+                            hintBox.showPopup();
+                        }
+                    }
+                    break;
+//                    case KeyEvent.VK_UP: {
+//                        if(hintBox.getItemCount() > 0) {
+//                            System.out.println("aaa");
+//                        }
+//                    }
                 }
             }
         });
@@ -51,11 +71,21 @@ public class CommandComboBox extends JTextField {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 setHints(CommandComboBox.this.getText());
+                if (hintBox.getItemCount() > 0) {
+                    hintBox.showPopup();
+                } else if (hintBox.getItemCount() == 0) {
+                    hintBox.hidePopup();
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 setHints(CommandComboBox.this.getText());
+                if (hintBox.getItemCount() > 0) {
+                    hintBox.showPopup();
+                } else if (hintBox.getItemCount() == 0) {
+                    hintBox.hidePopup();
+                }
             }
 
             @Override
@@ -80,19 +110,15 @@ public class CommandComboBox extends JTextField {
                 }
             }
         });
-
         setHints(null);
-        frame.add(this);
     }
 
     private void setHints(String commandStr) {
         hintBox.removeAllItems();
-        searchHistoryManager.getHistories()
-                .stream()
-                .filter(hint -> StringAdvice.isNotEmpty(commandStr) && hint.startsWith(commandStr))
-                .forEach(hintBox::addItem);
-        if (hintBox.getItemCount() > 0) {
-            hintBox.showPopup();
+        Stream<String> stream = searchHistoryManager.getHistories().stream();
+        if (commandStr != null) {
+            stream = stream.filter(hint -> hint.startsWith(commandStr));
         }
+        stream.forEach(hintBox::addItem);
     }
 }

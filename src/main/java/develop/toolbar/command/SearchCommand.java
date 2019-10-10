@@ -2,9 +2,8 @@ package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
 import develop.toolbar.utils.BrowseUtils;
-import develop.toolkit.base.struct.TwoValues;
-import develop.toolkit.base.utils.StringAdvice;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -18,20 +17,33 @@ public class SearchCommand implements Command {
     @Override
     public void execute(String content) throws CommandParseFailedException {
         int i = content.indexOf(" ");
-        if(i < 0) {
+        if (i < 0) {
             throw new CommandParseFailedException();
         }
-        TwoValues<String, String> twoValues = StringAdvice.cutOff(content, i);
+        final String method = content.substring(0, i);
+        String keyword;
+        try {
+            keyword = URLEncoder.encode(content.substring(i).trim(), StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return;
+        }
+        String uri;
+        switch (method) {
+            case "baidu":
+                uri = "https://www.baidu.com/s?wd=%s";
+                break;
+            case "google":
+                uri = "https://www.google.com/search?q=%s";
+                break;
+            case "mvn":
+                uri = "https://search.maven.org/search?q=%s";
+                break;
+            default:
+                throw new CommandParseFailedException();
+        }
         BrowseUtils.browse(
-                String.format(
-                        switch (twoValues.getFirstValue()) {
-                            case "baidu" -> "https://www.baidu.com/s?wd=%s";
-                            case "google" -> "https://www.google.com/search?q=%s";
-                            case "mvn" -> "https://search.maven.org/search?q=%s";
-                            default -> throw new CommandParseFailedException();
-                        },
-                        URLEncoder.encode(twoValues.getSecondValue().trim(), StandardCharsets.UTF_8)
-                )
+                String.format(uri, keyword)
         );
     }
 }

@@ -1,25 +1,25 @@
 package develop.toolbar;
 
-import develop.toolkit.base.utils.IOAdvice;
+import develop.toolbar.utils.IOAdvice;
+import lombok.Cleanup;
 import lombok.Getter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SearchHistoryManager {
 
-    private Path historyPath;
+    private String historyPath;
 
     @Getter
     private List<String> histories;
 
     public SearchHistoryManager() {
-        this.historyPath = Path.of(System.getProperty("user.dir"), "history.txt");
+        this.historyPath = System.getProperty("user.dir") + File.separator + "history.txt";
         histories = readHistory();
     }
 
@@ -30,8 +30,10 @@ public class SearchHistoryManager {
      */
     private List<String> readHistory() {
         try {
-            if (Files.exists(historyPath)) {
-                return IOAdvice.readLines(historyPath.toString()).collect(Collectors.toList());
+            final File file = new File(historyPath);
+            if (file.exists()) {
+                @Cleanup FileInputStream inputStream = new FileInputStream(file);
+                return IOAdvice.readLines(inputStream).collect(Collectors.toList());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,7 +50,7 @@ public class SearchHistoryManager {
         histories.remove(content);
         histories.add(0, content);
         try {
-            IOAdvice.writeLines(histories, historyPath.toString(), StandardCharsets.UTF_8);
+            IOAdvice.writeLines(histories, historyPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
