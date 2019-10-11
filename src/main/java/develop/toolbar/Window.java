@@ -18,9 +18,9 @@ public class Window extends JFrame {
 
     private CommandComboBox comboBox;
 
-    public Window(CommandComboBox comboBox) {
-        this.comboBox = comboBox;
-        this.setSize(600, 60);
+    public Window(CommandRegistry commandRegistry, SearchHistoryManager searchHistoryManager) {
+        this.comboBox = new CommandComboBox(this, commandRegistry, searchHistoryManager);
+        this.setSize(1000, 60);
         this.setLocation(DimensionUtils.screenWidth / 2 - this.getWidth() / 2, DimensionUtils.screenHeight / 2 - this.getHeight() / 2);
         this.setUndecorated(true);
         this.setAlwaysOnTop(true);
@@ -43,10 +43,10 @@ public class Window extends JFrame {
             }
         });
 
-        comboBox.setBounds(0, 10, 600, 40);
+        comboBox.setBounds(0, 10, 1000, 40);
         this.add(comboBox);
 
-        AWTUtilities.setWindowOpacity(this, 0.8f);
+        AWTUtilities.setWindowOpacity(this, 0.9f);
 
         final JIntellitype instance = JIntellitype.getInstance();
         JIntellitype.setLibraryLocation(System.getProperty("user.dir"));

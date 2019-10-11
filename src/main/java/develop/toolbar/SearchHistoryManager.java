@@ -1,16 +1,19 @@
 package develop.toolbar;
 
-import develop.toolbar.utils.IOAdvice;
 import lombok.Cleanup;
 import lombok.Getter;
+import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Component
 public class SearchHistoryManager {
 
     private String historyPath;
@@ -33,7 +36,7 @@ public class SearchHistoryManager {
             final File file = new File(historyPath);
             if (file.exists()) {
                 @Cleanup FileInputStream inputStream = new FileInputStream(file);
-                return IOAdvice.readLines(inputStream).collect(Collectors.toList());
+                return IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,7 +53,8 @@ public class SearchHistoryManager {
         histories.remove(content);
         histories.add(0, content);
         try {
-            IOAdvice.writeLines(histories, historyPath);
+            @Cleanup FileOutputStream fileOutputStream = new FileOutputStream(historyPath);
+            IOUtils.writeLines(histories, "\n", fileOutputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }

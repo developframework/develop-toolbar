@@ -2,6 +2,7 @@ package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
 import develop.toolbar.utils.BrowseUtils;
+import develop.toolbar.utils.StringAdvice;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -20,16 +21,16 @@ public class SearchCommand implements Command {
         if (i < 0) {
             throw new CommandParseFailedException();
         }
-        final String method = content.substring(0, i);
+        String[] parts = StringAdvice.cutOff(content, i);
         String keyword;
         try {
-            keyword = URLEncoder.encode(content.substring(i).trim(), StandardCharsets.UTF_8.name());
+            keyword = URLEncoder.encode(parts[1], StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return;
         }
         String uri;
-        switch (method) {
+        switch (parts[0]) {
             case "baidu":
                 uri = "https://www.baidu.com/s?wd=%s";
                 break;

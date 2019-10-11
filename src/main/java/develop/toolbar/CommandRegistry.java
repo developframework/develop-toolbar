@@ -1,17 +1,23 @@
 package develop.toolbar;
 
 import develop.toolbar.command.Command;
+import develop.toolbar.command.HttpCommand;
+import develop.toolbar.command.OpenCommand;
 import develop.toolbar.command.SearchCommand;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CommandRegistry {
 
     private List<Command> commands = new ArrayList<>();
 
     public CommandRegistry() {
         this.commands.add(new SearchCommand());
+        this.commands.add(new HttpCommand());
+        this.commands.add(new OpenCommand());
     }
 
     public boolean executeCommand(String commandStr) {
