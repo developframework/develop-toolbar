@@ -4,6 +4,8 @@ import develop.toolbar.command.Command;
 import develop.toolbar.command.HttpCommand;
 import develop.toolbar.command.OpenCommand;
 import develop.toolbar.command.SearchCommand;
+import develop.toolbar.properties.CommandProperties;
+import develop.toolbar.properties.ToolbarProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,10 +16,11 @@ public class CommandRegistry {
 
     private List<Command> commands = new ArrayList<>();
 
-    public CommandRegistry() {
-        this.commands.add(new SearchCommand());
-        this.commands.add(new HttpCommand());
-        this.commands.add(new OpenCommand());
+    public CommandRegistry(ToolbarProperties toolbarProperties) {
+        final CommandProperties commandProperties = toolbarProperties.getCommands();
+        this.commands.add(new SearchCommand(commandProperties));
+        this.commands.add(new HttpCommand(commandProperties));
+        this.commands.add(new OpenCommand(commandProperties));
     }
 
     public boolean executeCommand(String commandStr) {

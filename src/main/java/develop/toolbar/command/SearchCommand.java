@@ -1,6 +1,8 @@
 package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
+import develop.toolbar.properties.CommandProperties;
+import develop.toolbar.properties.SearchProperties;
 import develop.toolbar.utils.BrowseUtils;
 import develop.toolbar.utils.StringAdvice;
 
@@ -8,7 +10,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-public class SearchCommand implements Command {
+public class SearchCommand extends Command {
+
+    public SearchCommand(CommandProperties commandProperties) {
+        super(commandProperties);
+    }
 
     @Override
     public String keyword() {
@@ -29,22 +35,18 @@ public class SearchCommand implements Command {
             e.printStackTrace();
             return;
         }
-        String uri;
-        switch (parts[0]) {
-            case "baidu":
-                uri = "https://www.baidu.com/s?wd=%s";
+        String urlFormat = null;
+        for (SearchProperties searchProperties : commandProperties.getSearch()) {
+            if (searchProperties.getMethod().equals(parts[0])) {
+                urlFormat = searchProperties.getUrl();
                 break;
-            case "google":
-                uri = "https://www.google.com/search?q=%s";
-                break;
-            case "mvn":
-                uri = "https://search.maven.org/search?q=%s";
-                break;
-            default:
-                throw new CommandParseFailedException();
+            }
+        }
+        if (urlFormat == null) {
+            throw new CommandParseFailedException();
         }
         BrowseUtils.browse(
-                String.format(uri, keyword)
+                String.format(urlFormat, keyword)
         );
     }
 }

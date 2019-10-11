@@ -2,6 +2,8 @@ package develop.toolbar;
 
 import com.melloware.jintellitype.JIntellitype;
 import com.sun.awt.AWTUtilities;
+import develop.toolbar.properties.ToolbarProperties;
+import develop.toolbar.properties.WindowProperties;
 import develop.toolbar.utils.DimensionUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +18,12 @@ public class Window extends JFrame {
     private int xOld;
     private int yOld;
 
-    private CommandComboBox comboBox;
+    private CommandPanel comboBox;
 
-    public Window(CommandRegistry commandRegistry, SearchHistoryManager searchHistoryManager) {
-        this.comboBox = new CommandComboBox(this, commandRegistry, searchHistoryManager);
-        this.setSize(1000, 60);
+    public Window(ToolbarProperties toolbarProperties, CommandRegistry commandRegistry, SearchHistoryManager searchHistoryManager) {
+        this.comboBox = new CommandPanel(this, commandRegistry, searchHistoryManager);
+        final WindowProperties windowProperties = toolbarProperties.getWindow();
+        this.setSize(windowProperties.getWidth(), windowProperties.getHeight());
         this.setLocation(DimensionUtils.screenWidth / 2 - this.getWidth() / 2, DimensionUtils.screenHeight / 2 - this.getHeight() / 2);
         this.setUndecorated(true);
         this.setAlwaysOnTop(true);
@@ -42,11 +45,10 @@ public class Window extends JFrame {
                 );
             }
         });
-
-        comboBox.setBounds(0, 10, 1000, 40);
+        comboBox.setBounds(0, 10, windowProperties.getWidth(), windowProperties.getHeight() - 10);
         this.add(comboBox);
 
-        AWTUtilities.setWindowOpacity(this, 0.9f);
+        AWTUtilities.setWindowOpacity(this, windowProperties.getOpacity());
 
         final JIntellitype instance = JIntellitype.getInstance();
         JIntellitype.setLibraryLocation(System.getProperty("user.dir"));

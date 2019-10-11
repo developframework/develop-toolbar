@@ -1,11 +1,16 @@
 package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
+import develop.toolbar.properties.CommandProperties;
 
 import java.io.File;
 import java.io.IOException;
 
-public class OpenCommand implements Command {
+public class OpenCommand extends Command {
+
+    public OpenCommand(CommandProperties commandProperties) {
+        super(commandProperties);
+    }
 
     @Override
     public String keyword() {

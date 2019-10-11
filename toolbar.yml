@@ -1,0 +1,18 @@
+window:
+  width: 800
+  height: 40
+  opacity: 0.9
+
+commands:
+  search:
+    - method: 'baidu'
+      url: 'https://www.baidu.com/s?wd=%s'
+    - method: 'google'
+      url: 'https://www.google.com/search?q=%s'
+    - method: 'mvn'
+      url: 'https://search.maven.org/search?q=%s'
+    - method: 'mvnr'
+      url: 'https://mvnrepository.com/search?q=%s'
+  opens:
+    - name: 'workspace'
+      resource: 'E:\workspace'
