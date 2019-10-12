@@ -37,8 +37,15 @@ public class OpenCommand extends Command {
             File file = new File(content);
             if (file.exists()) {
                 try {
-                    String operate = file.isFile() ? "sublime_text.exe" : "start explorer";
-                    Runtime.getRuntime().exec(String.format("cmd /c %s %s", operate, content));
+                    if (file.isDirectory()) {
+                        openExplorer(file.getAbsolutePath());
+                    } else {
+                        if (file.getName().endsWith(".exe")) {
+                            openExe(file.getAbsolutePath());
+                        } else {
+                            openTextFile(file.getAbsolutePath());
+                        }
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new CommandParseFailedException();
@@ -46,4 +53,17 @@ public class OpenCommand extends Command {
             }
         }
     }
+
+    private void openExe(String content) throws IOException {
+        Runtime.getRuntime().exec(String.format("\"%s\"", content));
+    }
+
+    private void openExplorer(String content) throws IOException {
+        Runtime.getRuntime().exec(String.format("cmd /c start explorer \"%s\"", content));
+    }
+
+    private void openTextFile(String content) throws IOException {
+        Runtime.getRuntime().exec(String.format("cmd /c start \"%s\" \"%s\"", toolbarProperties.getSoftware().getTextEditor(), content));
+    }
 }
+

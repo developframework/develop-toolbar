@@ -2,3 +2,4 @@ target
 .idea
 *.iml
 *.txt
+dependency-reduced-pom.xml

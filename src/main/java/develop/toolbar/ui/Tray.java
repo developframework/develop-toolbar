@@ -1,4 +1,4 @@
-package develop.toolbar;
+package develop.toolbar.ui;
 
 import com.melloware.jintellitype.JIntellitype;
 import org.springframework.stereotype.Component;

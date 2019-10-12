@@ -14,4 +14,6 @@ public class ToolbarProperties {
 
     private CommandProperties commands;
 
+    private SoftwareProperties software;
+
 }
