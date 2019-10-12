@@ -5,7 +5,6 @@ import develop.toolbar.CommandRegistry;
 import develop.toolbar.SearchHistoryManager;
 import develop.toolbar.properties.ToolbarProperties;
 import develop.toolbar.properties.WindowProperties;
-import develop.toolbar.utils.DimensionUtils;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,6 @@ public class Window extends BaseWindow {
         this.commandPanel = new CommandPanel(this, commandRegistry, searchHistoryManager);
         final WindowProperties windowProperties = toolbarProperties.getWindow();
         this.setSize(windowProperties.getWidth(), windowProperties.getHeight());
-        this.setLocation(DimensionUtils.screenWidth / 2 - this.getWidth() / 2, DimensionUtils.screenHeight / 2 - this.getHeight() / 2);
         this.setLayout(null);
         commandPanel.setBounds(0, 10, windowProperties.getWidth(), windowProperties.getHeight() - 20);
         this.add(commandPanel);

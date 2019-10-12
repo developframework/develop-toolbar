@@ -28,7 +28,6 @@ public class CommandPanel extends JPanel {
         textField = new JTextField();
         textField.setFont(new Font("微软雅黑", Font.BOLD, 20));
         textField.setForeground(new Color(0x55524C));
-        textField.setBorder(BorderFactory.createEtchedBorder());
         textField.setMargin(new Insets(0, 10, 0, 10));
         textField.setFocusTraversalKeysEnabled(false);
         this.add(textField);

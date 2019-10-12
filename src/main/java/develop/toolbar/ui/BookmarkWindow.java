@@ -3,7 +3,6 @@ package develop.toolbar.ui;
 import develop.toolbar.CommandRegistry;
 import develop.toolbar.properties.BookmarkProperties;
 import develop.toolbar.properties.ToolbarProperties;
-import develop.toolbar.utils.DimensionUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -33,8 +32,7 @@ public class BookmarkWindow extends BaseWindow {
                 .filter(bookmarks -> content == null || bookmarks.getContent().startsWith(content))
                 .sorted(Comparator.comparing(BookmarkProperties::getContent))
                 .collect(Collectors.toList());
-        this.setSize(600, 300);
-        this.setLocation(DimensionUtils.screenWidth / 2 - this.getWidth() / 2, DimensionUtils.screenHeight / 2 - this.getHeight() / 2);
+        this.setSize(1000, 600);
         this.setLayout(new BorderLayout());
 
         Object[][] data = new Object[bookmarks.size()][2];
@@ -42,7 +40,13 @@ public class BookmarkWindow extends BaseWindow {
             BookmarkProperties bookmark = bookmarks.get(i);
             data[i] = new String[]{bookmark.getName(), bookmark.getContent()};
         }
-        DefaultTableModel model = new DefaultTableModel(data, new String[]{"bookmark", "content"});
+        DefaultTableModel model = new DefaultTableModel(data, new String[]{"bookmark", "content"}) {
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(model);
         table.setFont(new Font("微软雅黑", Font.PLAIN, 14));
 

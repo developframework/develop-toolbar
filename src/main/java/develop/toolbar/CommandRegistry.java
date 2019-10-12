@@ -2,6 +2,8 @@ package develop.toolbar;
 
 import develop.toolbar.command.Command;
 import develop.toolbar.command.RegisterCommand;
+import develop.toolbar.properties.AliasProperties;
+import develop.toolbar.properties.ToolbarProperties;
 import develop.toolbar.utils.CollectionAdvice;
 import develop.toolbar.utils.StringAdvice;
 import org.springframework.beans.BeansException;
@@ -18,6 +20,8 @@ public class CommandRegistry implements ApplicationContextAware {
 
     private List<Command> commands = new ArrayList<>();
 
+    private ToolbarProperties toolbarProperties;
+
     public boolean executeCommand(String commandStr) {
         int spaceIndex = commandStr.indexOf(" ");
         String method, content = null;
@@ -27,6 +31,14 @@ public class CommandRegistry implements ApplicationContextAware {
             content = parts[1].trim();
         } else {
             method = commandStr;
+        }
+
+        AliasProperties matchAlias = CollectionAdvice
+                .getFirstMatch(toolbarProperties.getCommands().getAliases(), method, AliasProperties::getAlias)
+                .orElse(null);
+        if (matchAlias != null) {
+            executeCommand(matchAlias.getContent() + (content == null ? "" : (" " + commandStr)));
+            return true;
         }
         Command command = CollectionAdvice
                 .getFirstMatch(commands, method, Command::keyword)
@@ -49,5 +61,6 @@ public class CommandRegistry implements ApplicationContextAware {
             if (value instanceof Command)
                 commands.add((Command) value);
         }
+        toolbarProperties = applicationContext.getBean(ToolbarProperties.class);
     }
 }

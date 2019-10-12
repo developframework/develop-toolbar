@@ -17,12 +17,18 @@ commands:
     - method: 'mvnr'
       url: 'https://mvnrepository.com/search?q=%s'
 
+  aliases:
+    - alias: 'b'
+      content: 'search baidu'
+    - alias: 'g'
+      content: 'search google'
+
   bookmarks:
     - name: 'gitlab'
       content: 'http gitlab.hclc-tech.com'
 
     - name: 'nexus'
-      content: 'http nexus.hclc-tech.com'
+      content: 'http nexus.hclc-tech.com:8081'
 
     - name: 'testp'
       content: 'http test:9000'

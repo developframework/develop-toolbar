@@ -2,6 +2,7 @@ package develop.toolbar.ui;
 
 import com.sun.awt.AWTUtilities;
 import develop.toolbar.properties.ToolbarProperties;
+import develop.toolbar.utils.DimensionUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ public abstract class BaseWindow extends JFrame {
         this.toolbarProperties = toolbarProperties;
         this.setUndecorated(true);
         this.setAlwaysOnTop(true);
+        this.setLocation(DimensionUtils.screenWidth / 2 - this.getWidth() / 2, DimensionUtils.screenHeight / 2 - this.getHeight() / 2);
         AWTUtilities.setWindowOpacity(this, toolbarProperties.getWindow().getOpacity());
 
         this.addMouseListener(new MouseAdapter() {

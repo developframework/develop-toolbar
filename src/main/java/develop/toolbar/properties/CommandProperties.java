@@ -15,4 +15,7 @@ public class CommandProperties {
     private List<SearchProperties> search;
 
     private List<BookmarkProperties> bookmarks;
+
+    private List<AliasProperties> aliases;
+
 }
