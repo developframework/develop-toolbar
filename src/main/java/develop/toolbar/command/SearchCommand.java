@@ -1,19 +1,22 @@
 package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
-import develop.toolbar.properties.CommandProperties;
 import develop.toolbar.properties.SearchProperties;
+import develop.toolbar.properties.ToolbarProperties;
 import develop.toolbar.utils.BrowseUtils;
 import develop.toolbar.utils.StringAdvice;
+import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+@RegisterCommand
+@Component
 public class SearchCommand extends Command {
 
-    public SearchCommand(CommandProperties commandProperties) {
-        super(commandProperties);
+    public SearchCommand(ToolbarProperties toolbarProperties) {
+        super(toolbarProperties);
     }
 
     @Override
@@ -36,7 +39,7 @@ public class SearchCommand extends Command {
             return;
         }
         String urlFormat = null;
-        for (SearchProperties searchProperties : commandProperties.getSearch()) {
+        for (SearchProperties searchProperties : toolbarProperties.getCommands().getSearch()) {
             if (searchProperties.getMethod().equals(parts[0])) {
                 urlFormat = searchProperties.getUrl();
                 break;

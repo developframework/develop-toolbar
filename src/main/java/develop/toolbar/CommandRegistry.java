@@ -1,45 +1,53 @@
 package develop.toolbar;
 
 import develop.toolbar.command.Command;
-import develop.toolbar.command.HttpCommand;
-import develop.toolbar.command.OpenCommand;
-import develop.toolbar.command.SearchCommand;
-import develop.toolbar.properties.CommandProperties;
-import develop.toolbar.properties.ToolbarProperties;
+import develop.toolbar.command.RegisterCommand;
+import develop.toolbar.utils.CollectionAdvice;
+import develop.toolbar.utils.StringAdvice;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
-public class CommandRegistry {
+public class CommandRegistry implements ApplicationContextAware {
 
     private List<Command> commands = new ArrayList<>();
 
-    public CommandRegistry(ToolbarProperties toolbarProperties) {
-        final CommandProperties commandProperties = toolbarProperties.getCommands();
-        this.commands.add(new SearchCommand(commandProperties));
-        this.commands.add(new HttpCommand(commandProperties));
-        this.commands.add(new OpenCommand(commandProperties));
-    }
-
     public boolean executeCommand(String commandStr) {
-        Command matchCommand = null;
-        for (Command command : commands) {
-            if (commandStr.startsWith(command.keyword())) {
-                matchCommand = command;
-                break;
-            }
+        int spaceIndex = commandStr.indexOf(" ");
+        String method, content = null;
+        if (spaceIndex > 0) {
+            String[] parts = StringAdvice.cutOff(commandStr, spaceIndex);
+            method = parts[0];
+            content = parts[1].trim();
+        } else {
+            method = commandStr;
         }
-        if (matchCommand != null) {
+        Command command = CollectionAdvice
+                .getFirstMatch(commands, method, Command::keyword)
+                .orElse(null);
+        if (command != null) {
             try {
-                matchCommand.execute(commandStr.substring(commandStr.indexOf(" ")).trim());
+                command.execute(content);
                 return true;
             } catch (CommandParseFailedException e) {
                 e.printStackTrace();
-                return false;
             }
         }
         return false;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(RegisterCommand.class);
+        for (Object value : beansWithAnnotation.values()) {
+            if (value instanceof Command)
+                commands.add((Command) value);
+        }
     }
 }

@@ -1,4 +1,7 @@
-package develop.toolbar;
+package develop.toolbar.ui;
+
+import develop.toolbar.CommandRegistry;
+import develop.toolbar.SearchHistoryManager;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -123,5 +126,10 @@ public class CommandPanel extends JPanel {
             stream = stream.filter(hint -> hint.startsWith(commandStr));
         }
         stream.forEach(hintBox::addItem);
+    }
+
+    public void clearHistory() {
+        searchHistoryManager.clear();
+        setHints(null);
     }
 }

@@ -59,4 +59,17 @@ public class SearchHistoryManager {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 清空历史
+     */
+    public void clear() {
+        histories.clear();
+        try {
+            @Cleanup FileOutputStream fileOutputStream = new FileOutputStream(historyPath);
+            IOUtils.writeLines(histories, "\n", fileOutputStream, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

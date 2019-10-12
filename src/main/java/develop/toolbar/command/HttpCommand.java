@@ -1,12 +1,15 @@
 package develop.toolbar.command;
 
-import develop.toolbar.properties.CommandProperties;
+import develop.toolbar.properties.ToolbarProperties;
 import develop.toolbar.utils.BrowseUtils;
+import org.springframework.stereotype.Component;
 
+@RegisterCommand
+@Component
 public class HttpCommand extends Command {
 
-    public HttpCommand(CommandProperties commandProperties) {
-        super(commandProperties);
+    public HttpCommand(ToolbarProperties toolbarProperties) {
+        super(toolbarProperties);
     }
 
     @Override

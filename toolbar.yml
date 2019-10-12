@@ -1,18 +1,40 @@
 window:
   width: 800
-  height: 40
+  height: 60
   opacity: 0.9
 
 commands:
   search:
     - method: 'baidu'
       url: 'https://www.baidu.com/s?wd=%s'
+
     - method: 'google'
       url: 'https://www.google.com/search?q=%s'
+
     - method: 'mvn'
       url: 'https://search.maven.org/search?q=%s'
+
     - method: 'mvnr'
       url: 'https://mvnrepository.com/search?q=%s'
-  opens:
-    - name: 'workspace'
-      resource: 'E:\workspace'
+
+  bookmarks:
+    - name: 'gitlab'
+      content: 'http gitlab.hclc-tech.com'
+
+    - name: 'nexus'
+      content: 'http nexus.hclc-tech.com'
+
+    - name: 'testp'
+      content: 'http test:9000'
+
+    - name: 'prdp'
+      content: 'http prd:9000'
+
+    - name: 'workspace/config'
+      content: 'open D:\workspace\hclcspace\hclc-informationize-cloud-config-data'
+
+    - name: 'workspace/deploy'
+      content: 'open D:\workspace\hclcspace\docker-compose-deploy'
+
+    - name: 'setting'
+      content: 'open D:\Develop\apache-maven\conf\settings.xml'
