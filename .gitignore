@@ -3,3 +3,4 @@ target
 *.iml
 *.txt
 dependency-reduced-pom.xml
+toolbar.yml

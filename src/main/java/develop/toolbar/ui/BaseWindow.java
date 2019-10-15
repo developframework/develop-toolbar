@@ -1,6 +1,6 @@
 package develop.toolbar.ui;
 
-import develop.toolbar.properties.ToolbarProperties;
+import develop.toolbar.ToolbarPropertiesFactory;
 import develop.toolbar.utils.DimensionUtils;
 
 import javax.swing.*;
@@ -12,10 +12,10 @@ import java.awt.event.MouseMotionAdapter;
 public abstract class BaseWindow extends JFrame {
 
     private int xOld, yOld;
-    protected ToolbarProperties toolbarProperties;
+    protected ToolbarPropertiesFactory toolbarPropertiesFactory;
 
-    public BaseWindow(ToolbarProperties toolbarProperties) throws HeadlessException {
-        this.toolbarProperties = toolbarProperties;
+    public BaseWindow(ToolbarPropertiesFactory toolbarPropertiesFactory) throws HeadlessException {
+        this.toolbarPropertiesFactory = toolbarPropertiesFactory;
         this.setUndecorated(true);
         this.setAlwaysOnTop(true);
         this.setLocation((DimensionUtils.screenWidth - this.getWidth()) / 2, (DimensionUtils.screenHeight - this.getHeight()) / 2);

@@ -2,23 +2,21 @@ package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
 import develop.toolbar.CommandRegistry;
+import develop.toolbar.ToolbarPropertiesFactory;
 import develop.toolbar.properties.BookmarkProperties;
-import develop.toolbar.properties.ToolbarProperties;
 import develop.toolbar.utils.CollectionAdvice;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 @RegisterCommand
-@Component
 public class OpenCommand extends Command {
 
     private CommandRegistry commandRegistry;
 
-    public OpenCommand(ToolbarProperties toolbarProperties, CommandRegistry commandRegistry) {
-        super(toolbarProperties);
+    public OpenCommand(ToolbarPropertiesFactory toolbarPropertiesFactory, CommandRegistry commandRegistry) {
+        super(toolbarPropertiesFactory);
         this.commandRegistry = commandRegistry;
     }
 
@@ -29,7 +27,7 @@ public class OpenCommand extends Command {
 
     @Override
     public void execute(String content) throws CommandParseFailedException {
-        Optional<BookmarkProperties> firstMatch = CollectionAdvice.getFirstMatch(toolbarProperties.getCommands().getBookmarks(), content, BookmarkProperties::getName);
+        Optional<BookmarkProperties> firstMatch = CollectionAdvice.getFirstMatch(factory.getToolbarProperties().getCommands().getBookmarks(), content, BookmarkProperties::getName);
         if (firstMatch.isPresent()) {
             BookmarkProperties bookmark = firstMatch.get();
             commandRegistry.executeCommand(bookmark.getContent());
@@ -63,7 +61,7 @@ public class OpenCommand extends Command {
     }
 
     private void openTextFile(String content) throws IOException {
-        Runtime.getRuntime().exec(String.format("cmd /c start \"%s\" \"%s\"", toolbarProperties.getSoftware().getTextEditor(), content));
+        Runtime.getRuntime().exec(String.format("cmd /c start \"%s\" \"%s\"", factory.getToolbarProperties().getSoftware().getTextEditor(), content));
     }
 }
 

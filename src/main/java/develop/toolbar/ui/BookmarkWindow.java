@@ -1,8 +1,8 @@
 package develop.toolbar.ui;
 
 import develop.toolbar.CommandRegistry;
+import develop.toolbar.ToolbarPropertiesFactory;
 import develop.toolbar.properties.BookmarkProperties;
-import develop.toolbar.properties.ToolbarProperties;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -23,10 +23,10 @@ public class BookmarkWindow extends BaseWindow {
 
     private CommandRegistry commandRegistry;
 
-    public BookmarkWindow(ToolbarProperties toolbarProperties, CommandRegistry commandRegistry, String content) {
-        super(toolbarProperties);
+    public BookmarkWindow(ToolbarPropertiesFactory toolbarPropertiesFactory, CommandRegistry commandRegistry, String content) {
+        super(toolbarPropertiesFactory);
         this.commandRegistry = commandRegistry;
-        this.bookmarks = toolbarProperties.getCommands()
+        this.bookmarks = toolbarPropertiesFactory.getToolbarProperties().getCommands()
                 .getBookmarks()
                 .stream()
                 .filter(bookmarks -> content == null || bookmarks.getContent().startsWith(content))

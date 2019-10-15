@@ -1,22 +1,21 @@
 package develop.toolbar.command;
 
 import develop.toolbar.ToolbarPropertiesFactory;
-import develop.toolbar.utils.BrowseUtils;
 
 @RegisterCommand
-public class HttpCommand extends Command {
+public class RefreshCommand extends Command {
 
-    public HttpCommand(ToolbarPropertiesFactory toolbarPropertiesFactory) {
+    public RefreshCommand(ToolbarPropertiesFactory toolbarPropertiesFactory) {
         super(toolbarPropertiesFactory);
     }
 
     @Override
     public String keyword() {
-        return "http";
+        return "refresh";
     }
 
     @Override
     public void execute(String content) {
-        BrowseUtils.browse("http://" + content);
+        factory.load();
     }
 }

@@ -1,14 +1,14 @@
 package develop.toolbar.command;
 
 import develop.toolbar.CommandParseFailedException;
-import develop.toolbar.properties.ToolbarProperties;
+import develop.toolbar.ToolbarPropertiesFactory;
 
 public abstract class Command {
 
-    protected ToolbarProperties toolbarProperties;
+    protected ToolbarPropertiesFactory factory;
 
-    public Command(ToolbarProperties toolbarProperties) {
-        this.toolbarProperties = toolbarProperties;
+    public Command(ToolbarPropertiesFactory toolbarPropertiesFactory) {
+        this.factory = toolbarPropertiesFactory;
     }
 
     public abstract String keyword();

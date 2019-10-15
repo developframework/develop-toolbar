@@ -3,7 +3,6 @@ package develop.toolbar;
 import develop.toolbar.command.Command;
 import develop.toolbar.command.RegisterCommand;
 import develop.toolbar.properties.AliasProperties;
-import develop.toolbar.properties.ToolbarProperties;
 import develop.toolbar.utils.CollectionAdvice;
 import develop.toolbar.utils.StringAdvice;
 import org.springframework.beans.BeansException;
@@ -20,7 +19,7 @@ public class CommandRegistry implements ApplicationContextAware {
 
     private List<Command> commands = new ArrayList<>();
 
-    private ToolbarProperties toolbarProperties;
+    private ToolbarPropertiesFactory toolbarPropertiesFactory;
 
     public boolean executeCommand(String commandStr) {
         int spaceIndex = commandStr.indexOf(" ");
@@ -34,10 +33,10 @@ public class CommandRegistry implements ApplicationContextAware {
         }
 
         AliasProperties matchAlias = CollectionAdvice
-                .getFirstMatch(toolbarProperties.getCommands().getAliases(), method, AliasProperties::getAlias)
+                .getFirstMatch(toolbarPropertiesFactory.getToolbarProperties().getCommands().getAliases(), method, AliasProperties::getAlias)
                 .orElse(null);
         if (matchAlias != null) {
-            executeCommand(matchAlias.getContent() + (content == null ? "" : (" " + commandStr)));
+            executeCommand(matchAlias.getContent() + (content == null ? "" : (" " + content)));
             return true;
         }
         Command command = CollectionAdvice
@@ -61,6 +60,6 @@ public class CommandRegistry implements ApplicationContextAware {
             if (value instanceof Command)
                 commands.add((Command) value);
         }
-        toolbarProperties = applicationContext.getBean(ToolbarProperties.class);
+        toolbarPropertiesFactory = applicationContext.getBean(ToolbarPropertiesFactory.class);
     }
 }
