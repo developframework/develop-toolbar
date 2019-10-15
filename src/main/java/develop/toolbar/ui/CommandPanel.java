@@ -4,11 +4,11 @@ import develop.toolbar.CommandRegistry;
 import develop.toolbar.SearchHistoryManager;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class CommandPanel extends JPanel {
@@ -20,6 +20,10 @@ public class CommandPanel extends JPanel {
     private CommandRegistry commandRegistry;
 
     private SearchHistoryManager searchHistoryManager;
+
+    private int upCount;
+
+    private static final Border ERROR_BORDER = BorderFactory.createLineBorder(new Color(0xFF030F), 2);
 
     public CommandPanel(Window window, CommandRegistry commandRegistry, SearchHistoryManager searchHistoryManager) {
         this.commandRegistry = commandRegistry;
@@ -33,6 +37,8 @@ public class CommandPanel extends JPanel {
         this.add(textField);
 
         hintBox = new JComboBox<String>() {
+
+            @Override
             public Dimension getPreferredSize() {
                 return new Dimension(super.getPreferredSize().width, 0);
             }
@@ -48,51 +54,43 @@ public class CommandPanel extends JPanel {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_ENTER: {
-                        String commandStr = textField.getText();
+                        final String commandStr = textField.getText();
                         if (commandRegistry.executeCommand(commandStr)) {
                             searchHistoryManager.appendHistory(commandStr);
                             textField.setText("");
                             window.setVisible(false);
+                            upCount = 0;
+                        } else {
+                            window.shake();
+                            textField.setBorder(ERROR_BORDER);
                         }
                     }
                     break;
-                    case KeyEvent.VK_TAB:
-                    case KeyEvent.VK_DOWN: {
+                    case KeyEvent.VK_TAB: {
+                        setHints(textField.getText());
                         if (hintBox.getItemCount() > 0) {
                             hintBox.requestFocus();
                             hintBox.showPopup();
                         }
                     }
                     break;
+                    case KeyEvent.VK_DOWN: {
+                        final List<String> histories = searchHistoryManager.getHistories();
+                        if (!histories.isEmpty()) {
+                            textField.setText(histories.get(upCount));
+                            if (--upCount < 0) upCount = 0;
+                        }
+                    }
+                    break;
+                    case KeyEvent.VK_UP: {
+                        final List<String> histories = searchHistoryManager.getHistories();
+                        if (!histories.isEmpty()) {
+                            textField.setText(histories.get(upCount));
+                            if (++upCount > histories.size() - 1) upCount = histories.size() - 1;
+                        }
+                    }
+                    break;
                 }
-            }
-        });
-
-        //文本框事件
-        textField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                setHints(textField.getText());
-                if (hintBox.getItemCount() > 0) {
-                    hintBox.showPopup();
-                } else if (hintBox.getItemCount() == 0) {
-                    hintBox.hidePopup();
-                }
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                setHints(textField.getText());
-                if (hintBox.getItemCount() > 0) {
-                    hintBox.showPopup();
-                } else if (hintBox.getItemCount() == 0) {
-                    hintBox.hidePopup();
-                }
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-
             }
         });
 
@@ -125,6 +123,7 @@ public class CommandPanel extends JPanel {
             stream = stream.filter(hint -> hint.startsWith(commandStr));
         }
         stream.forEach(hintBox::addItem);
+        textField.setBorder(null);
     }
 
     public void clearHistory() {

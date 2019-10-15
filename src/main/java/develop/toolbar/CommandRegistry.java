@@ -5,6 +5,7 @@ import develop.toolbar.command.RegisterCommand;
 import develop.toolbar.properties.AliasProperties;
 import develop.toolbar.utils.CollectionAdvice;
 import develop.toolbar.utils.StringAdvice;
+import lombok.Getter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -19,6 +20,7 @@ public class CommandRegistry implements ApplicationContextAware {
 
     private List<Command> commands = new ArrayList<>();
 
+    @Getter
     private ToolbarPropertiesFactory toolbarPropertiesFactory;
 
     public boolean executeCommand(String commandStr) {

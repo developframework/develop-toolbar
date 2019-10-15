@@ -3,6 +3,7 @@ package develop.toolbar.ui;
 import develop.toolbar.CommandRegistry;
 import develop.toolbar.ToolbarPropertiesFactory;
 import develop.toolbar.properties.BookmarkProperties;
+import develop.toolbar.utils.DimensionUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -33,6 +34,7 @@ public class BookmarkWindow extends BaseWindow {
                 .sorted(Comparator.comparing(BookmarkProperties::getContent))
                 .collect(Collectors.toList());
         this.setSize(1000, 600);
+        this.setLocation((DimensionUtils.screenWidth - this.getWidth()) / 2, (DimensionUtils.screenHeight - this.getHeight()) / 2);
         this.setLayout(new BorderLayout());
 
         Object[][] data = new Object[bookmarks.size()][2];
