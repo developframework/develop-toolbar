@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Clipboard {
+public class ClipboardProperties {
 
     private String name;
 

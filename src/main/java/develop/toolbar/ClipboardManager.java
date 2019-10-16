@@ -1,5 +1,6 @@
 package develop.toolbar;
 
+import develop.toolbar.structs.Clipboard;
 import lombok.Cleanup;
 import lombok.Getter;
 import org.apache.commons.io.IOUtils;
@@ -10,10 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Component
 public class ClipboardManager {
@@ -21,53 +20,63 @@ public class ClipboardManager {
     private String clipboardPath;
 
     @Getter
-    private Map<String, String> clipboards = new HashMap<>();
+    private Map<String, Clipboard> clipboards = new HashMap<>();
 
     public ClipboardManager() {
         this.clipboardPath = System.getProperty("user.dir") + File.separator + "clipboard.txt";
+        this.loadClipboards();
     }
 
-    public Map<String, String> readClipboards() {
+    public void add(String name, String content, int deadMinutes) {
+        clipboards.putIfAbsent(name, new Clipboard(name, content, deadMinutes == 0 ? null : LocalDateTime.now().plusMinutes(deadMinutes)));
+        writeClipboards();
+    }
+
+    public void loadClipboards() {
         clipboards.clear();
         try {
             final File file = new File(clipboardPath);
             if (file.exists()) {
                 @Cleanup FileInputStream inputStream = new FileInputStream(file);
                 List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
-                StringBuilder sb = new StringBuilder();
-                String key = null;
+                List<String> content = new LinkedList<>();
                 for (String line : lines) {
-                    if (line.isEmpty()) {
-                        continue;
-                    }
-                    if (line.startsWith("#")) {
-                        put(key, sb);
-                        key = line.substring(1).trim();
-                    } else {
-                        if (sb.length() > 0) {
-                            sb.append(" ");
+                    if (line.startsWith(Clipboard.START_SIGN)) {
+                        if (!content.isEmpty()) {
+                            Clipboard clipboard = Clipboard.from(content);
+                            clipboards.put(clipboard.getName(), clipboard);
+                            content.clear();
                         }
-                        sb.append(line.trim());
+                    } else {
+                        content.add(line);
                     }
                 }
-                put(key, sb);
+                if (!content.isEmpty()) {
+                    Clipboard clipboard = Clipboard.from(content);
+                    clipboards.put(clipboard.getName(), clipboard);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return clipboards;
+        // 自动清理过期内容
+        LocalDateTime now = LocalDateTime.now();
+        for (Map.Entry<String, Clipboard> entry : clipboards.entrySet()) {
+            LocalDateTime deadTime = entry.getValue().getDeadTime();
+            if (deadTime != null && deadTime.isAfter(now)) {
+                clipboards.remove(entry.getKey());
+            }
+        }
+        writeClipboards();
     }
 
-    public void writeClipboards() {
+    private void writeClipboards() {
         StringBuilder sb = new StringBuilder();
         clipboards
                 .entrySet()
                 .stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
-                .forEach(entry -> {
-                    sb.append("# ").append(entry.getKey()).append("\r\n");
-                    sb.append(entry.getValue()).append("\r\n");
-                });
+                .forEach(entry -> sb.append(entry.getValue().toString()));
         try {
             @Cleanup FileOutputStream fileOutputStream = new FileOutputStream(clipboardPath);
             IOUtils.write(sb.toString(), fileOutputStream, StandardCharsets.UTF_8);
@@ -85,9 +94,9 @@ public class ClipboardManager {
         }
     }
 
-    private void put(String key, StringBuilder sb) {
+    private void put(String key, StringBuilder sb, LocalDateTime deadTime) {
         if (key != null && sb.length() > 0) {
-            clipboards.putIfAbsent(key, sb.toString());
+            clipboards.putIfAbsent(key, new Clipboard(key, sb.toString(), deadTime));
             sb.setLength(0);
         }
     }

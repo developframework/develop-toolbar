@@ -18,5 +18,5 @@ public class CommandProperties {
 
     private List<AliasProperties> aliases;
 
-    private List<Clipboard> clipboards;
+    private List<ClipboardProperties> clipboards;
 }

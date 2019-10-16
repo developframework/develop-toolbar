@@ -1,48 +1,63 @@
 package develop.toolbar.ui;
 
+import develop.toolbar.ClipboardManager;
 import develop.toolbar.ToolbarPropertiesFactory;
+import develop.toolbar.structs.DeadTime;
 import develop.toolbar.utils.DimensionUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Vector;
 
 public class ClipboardSettingWindow extends BaseWindow {
 
     private JTextField textField;
 
-    private JLabel label;
+    private JTextArea textArea;
 
-    public ClipboardSettingWindow(ToolbarPropertiesFactory toolbarPropertiesFactory, String name, String content) throws HeadlessException {
+    private JComboBox<DeadTime> comboBox;
+
+    private ClipboardManager clipboardManager;
+
+    public ClipboardSettingWindow(ToolbarPropertiesFactory toolbarPropertiesFactory, ClipboardManager clipboardManager, String name, String content) throws HeadlessException {
         super(toolbarPropertiesFactory);
 
-        this.setSize(400, 200);
+        this.setSize(500, 500);
         this.setLocation((DimensionUtils.screenWidth - this.getWidth()) / 2, (DimensionUtils.screenHeight - this.getHeight()) / 2);
-
+        this.setLayout(null);
         textField = new JTextField();
-        textField.setBounds(300, 40, 50, 10);
-        textField.setName(name);
+        textField.setBounds(10, 10, 480, 30);
+        textField.setText(name);
         textField.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        Box box1 = Box.createHorizontalBox();
-        box1.add(textField);
+        textField.requestFocus();
+        this.add(textField);
 
-        label = new JLabel(content);
-        label.setSize(300, 150);
-        Box box2 = Box.createHorizontalBox();
-        box1.add(label);
-        Box verticalBox = Box.createVerticalBox();
-        verticalBox.add(box1);
-        verticalBox.add(Box.createHorizontalStrut(10));
-        verticalBox.add(box2);
-        this.add(verticalBox);
+        Vector<DeadTime> data = new Vector<>();
+        data.add(new DeadTime("永不过期", 0));
+        data.add(new DeadTime("10 minutes", 10));
+        data.add(new DeadTime("30 minutes", 30));
+        data.add(new DeadTime("1 hours", 60));
+        data.add(new DeadTime("1 days", 24 * 60));
+        comboBox = new JComboBox<>(data);
+        comboBox.setBounds(10, 50, 480, 30);
+        comboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        this.add(comboBox);
 
-        this.addKeyListener(new KeyAdapter() {
+        textArea = new JTextArea(content == null ? "" : content);
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.setBounds(10, 90, 480, 400);
+        this.add(scroll);
+
+        textField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_ENTER:
-                        break;
+                        clipboardManager.add(textField.getText(), textArea.getText(), 0);
                     case KeyEvent.VK_ESCAPE:
                         ClipboardSettingWindow.this.dispose();
                         break;
