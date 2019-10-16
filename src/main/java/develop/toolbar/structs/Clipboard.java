@@ -29,7 +29,7 @@ public class Clipboard {
         String[] parts = title.split(SEPARATOR);
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i < lines.size(); i++) {
-            sb.append(lines.get(i));
+            sb.append(lines.get(i)).append("\n");
         }
         return new Clipboard(
                 parts[0],
@@ -42,8 +42,8 @@ public class Clipboard {
     public String toString() {
         StringBuilder sb = new StringBuilder(Clipboard.START_SIGN).append(name);
         if (deadTime != null) {
-            sb.append(SEPARATOR).append(LocalDateTime.now());
+            sb.append(SEPARATOR).append(deadTime);
         }
-        return sb.append("\r\n").append(content).append("\r\n").toString();
+        return sb.append("\n").append(content).toString();
     }
 }

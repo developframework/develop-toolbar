@@ -2,24 +2,29 @@ package develop.toolbar;
 
 import develop.toolbar.structs.Clipboard;
 import lombok.Cleanup;
-import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ClipboardManager {
 
     private String clipboardPath;
 
-    @Getter
     private Map<String, Clipboard> clipboards = new HashMap<>();
 
     public ClipboardManager() {
@@ -27,8 +32,27 @@ public class ClipboardManager {
         this.loadClipboards();
     }
 
+    public List<Clipboard> getAll() {
+        return clipboards
+                .values()
+                .stream()
+                .sorted(Comparator.comparing(Clipboard::getName))
+                .collect(Collectors.toList());
+    }
+
+    public String getValue(String name) {
+        autoClear();
+        Clipboard clipboard = clipboards.get(name);
+        return clipboard != null ? clipboard.getContent() : null;
+    }
+
     public void add(String name, String content, int deadMinutes) {
-        clipboards.putIfAbsent(name, new Clipboard(name, content, deadMinutes == 0 ? null : LocalDateTime.now().plusMinutes(deadMinutes)));
+        clipboards.put(name, new Clipboard(name, content, deadMinutes == 0 ? null : LocalDateTime.now().plusMinutes(deadMinutes)));
+        writeClipboards();
+    }
+
+    public void remove(String name) {
+        clipboards.remove(name);
         writeClipboards();
     }
 
@@ -41,33 +65,62 @@ public class ClipboardManager {
                 List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
                 List<String> content = new LinkedList<>();
                 for (String line : lines) {
-                    if (line.startsWith(Clipboard.START_SIGN)) {
-                        if (!content.isEmpty()) {
-                            Clipboard clipboard = Clipboard.from(content);
-                            clipboards.put(clipboard.getName(), clipboard);
-                            content.clear();
-                        }
-                    } else {
-                        content.add(line);
+                    if (line.startsWith(Clipboard.START_SIGN) && content.size() > 1) {
+                        Clipboard clipboard = Clipboard.from(content);
+                        clipboards.put(clipboard.getName(), clipboard);
+                        content.clear();
                     }
+                    content.add(line);
                 }
-                if (!content.isEmpty()) {
+                if (content.size() > 1) {
                     Clipboard clipboard = Clipboard.from(content);
                     clipboards.put(clipboard.getName(), clipboard);
+                    content.clear();
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // 自动清理过期内容
-        LocalDateTime now = LocalDateTime.now();
-        for (Map.Entry<String, Clipboard> entry : clipboards.entrySet()) {
-            LocalDateTime deadTime = entry.getValue().getDeadTime();
-            if (deadTime != null && deadTime.isAfter(now)) {
-                clipboards.remove(entry.getKey());
+        autoClear();
+        writeClipboards();
+    }
+
+    public void setClipboardValue(String text) {
+        if (text != null) {
+            java.awt.datatransfer.Clipboard systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            systemClipboard.setContents(new StringSelection(text.trim()), null);
+        }
+    }
+
+    public String getClipboardValue() {
+        java.awt.datatransfer.Clipboard systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Transferable transferable = systemClipboard.getContents("unknown");
+        if (transferable != null) {
+            try {
+                if (transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    return (String) transferable.getTransferData(DataFlavor.stringFlavor);
+                }
+            } catch (UnsupportedFlavorException | IOException e) {
             }
         }
-        writeClipboards();
+        return null;
+    }
+
+    private void autoClear() {
+        // 自动清理过期内容
+        LocalDateTime now = LocalDateTime.now();
+        List<String> needRemoveList = clipboards
+                .entrySet()
+                .stream()
+                .filter(entry -> {
+                    LocalDateTime deadTime = entry.getValue().getDeadTime();
+                    return deadTime != null && now.isAfter(deadTime);
+                })
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        for (String name : needRemoveList) {
+            clipboards.remove(name);
+        }
     }
 
     private void writeClipboards() {
@@ -91,13 +144,6 @@ public class ClipboardManager {
             IOUtils.write("", fileOutputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private void put(String key, StringBuilder sb, LocalDateTime deadTime) {
-        if (key != null && sb.length() > 0) {
-            clipboards.putIfAbsent(key, new Clipboard(key, sb.toString(), deadTime));
-            sb.setLength(0);
         }
     }
 }

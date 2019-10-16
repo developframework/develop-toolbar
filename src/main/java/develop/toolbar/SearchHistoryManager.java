@@ -54,7 +54,7 @@ public class SearchHistoryManager {
         histories.add(0, content);
         try {
             @Cleanup FileOutputStream fileOutputStream = new FileOutputStream(historyPath);
-            IOUtils.writeLines(histories, "\r\n", fileOutputStream, StandardCharsets.UTF_8);
+            IOUtils.writeLines(histories, "\n", fileOutputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,7 +67,7 @@ public class SearchHistoryManager {
         histories.clear();
         try {
             @Cleanup FileOutputStream fileOutputStream = new FileOutputStream(historyPath);
-            IOUtils.writeLines(histories, "\r\n", fileOutputStream, StandardCharsets.UTF_8);
+            IOUtils.writeLines(histories, "\n", fileOutputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }

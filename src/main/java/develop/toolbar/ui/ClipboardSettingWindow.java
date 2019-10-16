@@ -21,7 +21,7 @@ public class ClipboardSettingWindow extends BaseWindow {
 
     private ClipboardManager clipboardManager;
 
-    public ClipboardSettingWindow(ToolbarPropertiesFactory toolbarPropertiesFactory, ClipboardManager clipboardManager, String name, String content) throws HeadlessException {
+    public ClipboardSettingWindow(ToolbarPropertiesFactory toolbarPropertiesFactory, ClipboardManager clipboardManager, String name) throws HeadlessException {
         super(toolbarPropertiesFactory);
 
         this.setSize(500, 500);
@@ -35,16 +35,16 @@ public class ClipboardSettingWindow extends BaseWindow {
         this.add(textField);
 
         Vector<DeadTime> data = new Vector<>();
-        data.add(new DeadTime("永不过期", 0));
-        data.add(new DeadTime("10 minutes", 10));
         data.add(new DeadTime("30 minutes", 30));
         data.add(new DeadTime("1 hours", 60));
         data.add(new DeadTime("1 days", 24 * 60));
+        data.add(new DeadTime("forever", 0));
         comboBox = new JComboBox<>(data);
         comboBox.setBounds(10, 50, 480, 30);
         comboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         this.add(comboBox);
 
+        String content = clipboardManager.getClipboardValue();
         textArea = new JTextArea(content == null ? "" : content);
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -57,7 +57,7 @@ public class ClipboardSettingWindow extends BaseWindow {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_ENTER:
-                        clipboardManager.add(textField.getText(), textArea.getText(), 0);
+                        clipboardManager.add(textField.getText(), textArea.getText(), ((DeadTime) comboBox.getSelectedItem()).getValue());
                     case KeyEvent.VK_ESCAPE:
                         ClipboardSettingWindow.this.dispose();
                         break;
