@@ -1,5 +1,6 @@
 package develop.toolbar.ui;
 
+import com.sun.awt.AWTUtilities;
 import develop.toolbar.ToolbarPropertiesFactory;
 
 import javax.swing.*;
@@ -17,7 +18,7 @@ public abstract class BaseWindow extends JFrame {
         this.toolbarPropertiesFactory = toolbarPropertiesFactory;
         this.setUndecorated(true);
         this.setAlwaysOnTop(true);
-//        AWTUtilities.setWindowOpacity(this, toolbarProperties.getWindow().getOpacity());
+        AWTUtilities.setWindowOpacity(this, toolbarPropertiesFactory.getToolbarProperties().getWindow().getOpacity());
 
         this.addMouseListener(new MouseAdapter() {
             @Override
